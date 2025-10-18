@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineApp - Tu plataforma de reservas de cine</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN (temporary fix) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#1e40af',
+                dark: '#1e3a8a',
+                light: '#3b82f6',
+                lighter: '#60a5fa',
+              },
+              secondary: {
+                DEFAULT: '#7c3aed',
+                light: '#a78bfa',
+                lighter: '#c4b5fd',
+              },
+              success: {
+                DEFAULT: '#22c55e',
+                light: '#86efac',
+                dark: '#16a34a',
+              },
+              error: {
+                DEFAULT: '#ef4444',
+                light: '#fee2e2',
+                dark: '#dc2626',
+              },
+              warning: {
+                DEFAULT: '#f59e0b',
+                light: '#fef3c7',
+                dark: '#a16207',
+              },
+              info: {
+                DEFAULT: '#3b82f6',
+                light: '#dbeafe',
+                dark: '#1d4ed8',
+              },
+            },
+            fontFamily: {
+              roboto: ['Roboto', 'sans-serif'],
+              poppins: ['Poppins', 'sans-serif'],
+              outfit: ['Outfit', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
