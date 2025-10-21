@@ -298,12 +298,35 @@ const response = await axios.post('/api/auth/register-cliente', {
 
 ## 📚 Documentación
 
-- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) - Sistema de diseño completo (727 líneas)
-- [`AUDITORIA_COHERENCIA.md`](./AUDITORIA_COHERENCIA.md) - Auditoría visual (85% coherencia)
-- [`API_INTEGRATION_GUIDE.md`](./API_INTEGRATION_GUIDE.md) - Guía de integración API
-- [`FASE0_COMPLETADA.md`](./FASE0_COMPLETADA.md) - Resumen Fase 0
-- [`FASE1_COMPLETADA.md`](./FASE1_COMPLETADA.md) - Resumen Fase 1
-- [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) - Guía para AI agents
+Toda la documentación técnica del proyecto se encuentra en la carpeta [`/docs`](./docs/):
+
+### 📋 Documentación Principal
+- **[docs/README.md](./docs/README.md)** - Índice completo de toda la documentación
+
+### 🎯 Fases del Proyecto
+- **[docs/FASE0_COMPLETADA.md](./docs/FASE0_COMPLETADA.md)** - Design System establecido
+- **[docs/FASE1_COMPLETADA.md](./docs/FASE1_COMPLETADA.md)** - Setup inicial
+- **[docs/FASE2_COMPLETADA.md](./docs/FASE2_COMPLETADA.md)** - Componentes atoms
+- **[docs/FASE3_COMPLETADA.md](./docs/FASE3_COMPLETADA.md)** - Molecules y organisms
+- **[docs/FASE4_COMPLETADA.md](./docs/FASE4_COMPLETADA.md)** - Páginas customer y auth
+
+### 🎨 Design System
+- **[docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)** - Sistema de diseño completo (727 líneas)
+- **[docs/AUDITORIA_COHERENCIA.md](./docs/AUDITORIA_COHERENCIA.md)** - Auditoría visual (467 líneas)
+- **[docs/CHECKLIST_VISUAL_VERIFICACION.md](./docs/CHECKLIST_VISUAL_VERIFICACION.md)** - Checklist de coherencia
+
+### 🔐 Autenticación
+- **[docs/COMO_USAR_LOGIN.md](./docs/COMO_USAR_LOGIN.md)** - Guía completa del sistema de login
+- **[docs/AUTH_PAGES_COMPLETADAS.md](./docs/AUTH_PAGES_COMPLETADAS.md)** - Páginas de autenticación
+- **[docs/LOGIN_TEST_RESULTS.md](./docs/LOGIN_TEST_RESULTS.md)** - Resultados de pruebas de login
+
+### 🔧 Correcciones y Fixes
+- **[docs/TAILWIND_CSS_FIX.md](./docs/TAILWIND_CSS_FIX.md)** - Solución TailwindCSS
+- **[docs/FIX_INPUT_ICON_PROPS.md](./docs/FIX_INPUT_ICON_PROPS.md)** - Fix de props de iconos
+- **[docs/CORRECCIONES_VISUALES.md](./docs/CORRECCIONES_VISUALES.md)** - Ajustes visuales
+
+### 🔌 Backend
+- **[docs/BACKEND_REQUIREMENTS.md](./docs/BACKEND_REQUIREMENTS.md)** - Requerimientos del backend
 
 ## 🌐 Variables de Entorno
 

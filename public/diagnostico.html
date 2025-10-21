@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - CineApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2563eb; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎬 CineApp - Diagnóstico del Sistema</h1>
+        
+        <h2>Estado del Servidor:</h2>
+        <p class="success">✅ Servidor Vite corriendo en http://localhost:5173/</p>
+        
+        <h2>Pasos para Solucionar:</h2>
+        <ol>
+            <li><strong>Limpiar localStorage:</strong></li>
+            <button onclick="clearStorage()">Limpiar Storage</button>
+            <span id="clearStatus"></span>
+            
+            <li><strong>Ir al Login:</strong></li>
+            <button onclick="goToLogin()">Abrir Login</button>
+            
+            <li><strong>Ir a Cartelera (público):</strong></li>
+            <button onclick="goToCartelera()">Abrir Cartelera</button>
+        </ol>
+        
+        <h2>Información del Sistema:</h2>
+        <div id="info"></div>
+        
+        <h2>Credenciales de Prueba:</h2>
+        <ul>
+            <li><strong>Admin:</strong> admin@cine.com / admin123</li>
+            <li><strong>Cliente:</strong> customer@cine.com / password123</li>
+            <li><strong>Cajero:</strong> cajero@cine.com / cajero123</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Mostrar información del sistema
+        function showInfo() {
+            const info = document.getElementById('info');
+            const userStored = localStorage.getItem('user');
+            const tokenStored = localStorage.getItem('token');
+            
+            info.innerHTML = `
+                <p><strong>Usuario en localStorage:</strong> ${userStored || 'Ninguno (correcto para login)'}</p>
+                <p><strong>Token en localStorage:</strong> ${tokenStored || 'Ninguno'}</p>
+                <p><strong>URL actual:</strong> ${window.location.href}</p>
+            `;
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('clearStatus').innerHTML = '<span class="success">✅ Storage limpiado!</span>';
+            showInfo();
+        }
+        
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+        
+        function goToCartelera() {
+            window.location.href = '/cartelera';
+        }
+        
+        // Mostrar info al cargar
+        showInfo();
+    </script>
+</body>
+</html>

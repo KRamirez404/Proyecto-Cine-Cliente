@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '@atoms';
-import { Modal } from '@molecules';
+import { Modal, TermsModal } from '@molecules';
 import { Mail, Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 /**
@@ -46,6 +46,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsType, setTermsType] = useState('terms'); // 'terms' or 'privacy'
 
   // Mock users database
   const mockUsers = [
@@ -351,13 +353,27 @@ const Login = () => {
         <div className="mt-8 text-center text-sm text-neutral-600">
           <p>
             Al iniciar sesión, aceptas nuestros{' '}
-            <Link to="/terms" className="text-primary hover:underline">
+            <button
+              type="button"
+              onClick={() => {
+                setTermsType('terms');
+                setShowTermsModal(true);
+              }}
+              className="text-primary hover:underline font-medium"
+            >
               Términos y Condiciones
-            </Link>{' '}
+            </button>{' '}
             y{' '}
-            <Link to="/privacy" className="text-primary hover:underline">
+            <button
+              type="button"
+              onClick={() => {
+                setTermsType('privacy');
+                setShowTermsModal(true);
+              }}
+              className="text-primary hover:underline font-medium"
+            >
               Política de Privacidad
-            </Link>
+            </button>
           </p>
         </div>
       </div>
@@ -382,6 +398,13 @@ const Login = () => {
           </div>
         </Modal>
       )}
+
+      {/* Terms and Privacy Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        type={termsType}
+      />
     </div>
   );
 };

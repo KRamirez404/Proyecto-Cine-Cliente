@@ -45,6 +45,16 @@ const Confirmacion = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Helper para formatear moneda colombiana
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   // Get purchase data from location state
   const { purchase } = location.state || {};
 
@@ -283,12 +293,12 @@ const Confirmacion = () => {
                 <p className="text-sm text-neutral-600">Total Pagado</p>
                 <p className="text-xs text-neutral-500">
                   {purchase.seats.length} asiento{purchase.seats.length > 1 ? 's' : ''} ×{' '}
-                  ${purchase.showtime.price.toFixed(2)}
+                  {formatCurrency(purchase.showtime.price)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-4xl font-bold text-success">
-                  ${purchase.totalPrice.toFixed(2)}
+                  {formatCurrency(purchase.totalPrice)}
                 </p>
               </div>
             </div>

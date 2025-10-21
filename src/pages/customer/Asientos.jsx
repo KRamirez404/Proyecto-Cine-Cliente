@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Button, Badge } from '@atoms';
 import { ChevronLeft, Clock, MapPin, Film, Armchair, DollarSign } from 'lucide-react';
 
@@ -7,43 +7,76 @@ import { ChevronLeft, Clock, MapPin, Film, Armchair, DollarSign } from 'lucide-r
  * Asientos Page
  * 
  * Selección interactiva de asientos para una función específica.
- * Grid 2D: 10 filas (A-J) x 12 columnas (1-12) = 120 asientos.
+ * Estructura real del cine:
+ * - 2 BLOQUES separados
+ * - Cada bloque: 13 filas (A-M) x 10 columnas (1-10)
+ * - Total: 260 asientos (130 por bloque)
  * Estados: available, selected, occupied.
  * Multi-select con click toggle.
  */
 const Asientos = () => {
   const { showtimeId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Mock showtime data - TODO: Replace with API call
-  const showtime = {
-    id: parseInt(showtimeId),
-    movieTitle: 'Avengers: Endgame',
-    date: '2025-10-17',
-    time: '19:00',
-    sala: 'Sala 2',
-    format: '3D',
-    price: 12.00,
+  // Helper para formatear moneda colombiana
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
-  // Generate seat map (10 rows x 12 columns)
-  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  const columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  // Get showtime data from navigation state or use mock data
+  const showtime = location.state?.showtime || {
+    id: parseInt(showtimeId),
+    movieTitle: 'Película de ejemplo',
+    date: '2025-10-17',
+    time: '19:00',
+    sala: 'Sala 1',
+    format: '2D',
+    price: 12000,
+  };
+
+  // Log if using mock data (for debugging)
+  useEffect(() => {
+    if (!location.state?.showtime) {
+      console.info('Using mock showtime data. Navigate from Horarios page to see real data.');
+    }
+  }, [location.state]);
+
+  // Estructura real del cine: 13 filas (A-M), 10 columnas por bloque
+  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
+  const columnsBlock1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Bloque 1
+  const columnsBlock2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Bloque 2
 
   // Mock occupied seats - TODO: Replace with API call
+  // Formato: B1A5 = Bloque 1, Fila A, Asiento 5
+  //          B2M10 = Bloque 2, Fila M, Asiento 10
   const occupiedSeats = [
-    'A5', 'A6', 'B4', 'B5', 'B6', 'B7',
-    'C6', 'D5', 'D6', 'D7',
-    'E4', 'E5', 'E6', 'E7', 'E8',
-    'F8', 'G7', 'G8', 'G9',
-    'H5', 'H6', 'I5', 'I6', 'I7',
+    // Bloque 1
+    'B1A5', 'B1A6', 'B1B4', 'B1B5', 'B1B6', 'B1B7',
+    'B1C6', 'B1D5', 'B1D6', 'B1D7',
+    'B1E4', 'B1E5', 'B1E6', 'B1E7', 'B1E8',
+    'B1F8', 'B1G7', 'B1G8', 'B1G9',
+    'B1H5', 'B1H6', 'B1I5', 'B1I6', 'B1I7',
+    'B1M1', 'B1M2', 'B1M9', 'B1M10', // Últimas filas
+    // Bloque 2
+    'B2A1', 'B2B2', 'B2B3',
+    'B2C5', 'B2C6',
+    'B2E7', 'B2E8', 'B2E9',
+    'B2G4', 'B2G5', 'B2G6',
+    'B2K8', 'B2K9', 'B2K10',
+    'B2M3', 'B2M4', 'B2M5',
   ];
 
   // State: selected seats
   const [selectedSeats, setSelectedSeats] = useState([]);
 
   // Helper function to get seat ID
-  const getSeatId = (row, col) => `${row}${col}`;
+  const getSeatId = (block, row, col) => `B${block}${row}${col}`;
 
   // Check if seat is occupied
   const isSeatOccupied = (seatId) => occupiedSeats.includes(seatId);
@@ -89,7 +122,7 @@ const Asientos = () => {
 
   // Get seat styling
   const getSeatClasses = (seatId) => {
-    const baseClasses = 'w-8 h-8 sm:w-10 sm:h-10 rounded-t-lg transition-all cursor-pointer flex items-center justify-center text-xs font-medium';
+    const baseClasses = 'w-6 h-6 sm:w-8 sm:h-8 rounded-t-lg transition-all cursor-pointer flex items-center justify-center text-[10px] sm:text-xs font-medium';
     
     if (isSeatOccupied(seatId)) {
       return `${baseClasses} bg-neutral-300 text-neutral-500 cursor-not-allowed hover:bg-neutral-300`;
@@ -135,7 +168,7 @@ const Asientos = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-neutral-600 mb-1">Precio por asiento</p>
-            <p className="text-3xl font-bold text-primary">${showtime.price.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-primary">{formatCurrency(showtime.price)}</p>
           </div>
         </div>
       </div>
@@ -166,49 +199,121 @@ const Asientos = () => {
               <div className="h-2 bg-gradient-to-b from-neutral-600 to-transparent opacity-30"></div>
             </div>
 
-            {/* Seat Grid */}
-            <div className="overflow-x-auto">
-              <div className="inline-block min-w-full">
-                {/* Column Numbers */}
-                <div className="flex mb-2">
-                  <div className="w-8 sm:w-10"></div> {/* Space for row labels */}
-                  {columns.map(col => (
-                    <div key={col} className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-medium text-neutral-500">
-                      {col}
+            {/* Seat Grid - 2 BLOQUES LADO A LADO */}
+            <div className="overflow-x-auto pb-4">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 justify-center items-start max-w-full">
+                {/* BLOQUE 1 */}
+                <div className="flex-shrink-0 w-full lg:w-auto">
+                  <h3 className="text-center text-sm font-semibold text-neutral-700 mb-3 bg-neutral-100 py-2 rounded-lg">
+                    BLOQUE 1
+                  </h3>
+                  <div className="inline-block">
+                    {/* Column Numbers - Bloque 1 */}
+                    <div className="flex mb-2">
+                      <div className="w-6 sm:w-8"></div> {/* Space for row labels */}
+                      {columnsBlock1.map(col => (
+                        <div key={col} className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-[10px] sm:text-xs font-medium text-neutral-500">
+                          {col}
+                        </div>
+                      ))}
+                      <div className="w-6 sm:w-8"></div>
                     </div>
-                  ))}
+
+                    {/* Rows - Bloque 1 */}
+                    {rows.map((row) => (
+                      <div key={`b1-${row}`} className="flex mb-1">
+                        {/* Row Label */}
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-neutral-700">
+                          {row}
+                        </div>
+
+                        {/* Seats */}
+                        {columnsBlock1.map(col => {
+                          const seatId = getSeatId(1, row, col);
+                          const isOccupied = isSeatOccupied(seatId);
+                          const isSelected = isSeatSelected(seatId);
+
+                          return (
+                            <button
+                              key={seatId}
+                              onClick={() => handleSeatClick(seatId)}
+                              disabled={isOccupied}
+                              className={getSeatClasses(seatId)}
+                              title={`Bloque 1 - Asiento ${row}${col} - ${isOccupied ? 'Ocupado' : isSelected ? 'Seleccionado' : 'Disponible'}`}
+                              aria-label={`Bloque 1 Asiento ${row}${col}`}
+                            >
+                              {/* Icon based on state */}
+                              {isOccupied ? '✕' : isSelected ? '✓' : ''}
+                            </button>
+                          );
+                        })}
+
+                        {/* Row Label (derecha) */}
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-neutral-700">
+                          {row}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Rows */}
-                {rows.map((row) => (
-                  <div key={row} className="flex mb-1">
-                    {/* Row Label */}
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-bold text-neutral-700">
-                      {row}
+                {/* Separador vertical entre bloques (solo visible en desktop) */}
+                <div className="hidden lg:block w-px bg-neutral-300 self-stretch"></div>
+
+                {/* BLOQUE 2 */}
+                <div className="flex-shrink-0 w-full lg:w-auto">
+                  <h3 className="text-center text-sm font-semibold text-neutral-700 mb-3 bg-neutral-100 py-2 rounded-lg">
+                    BLOQUE 2
+                  </h3>
+                  <div className="inline-block">
+                    {/* Column Numbers - Bloque 2 */}
+                    <div className="flex mb-2">
+                      <div className="w-6 sm:w-8"></div> {/* Space for row labels */}
+                      {columnsBlock2.map(col => (
+                        <div key={col} className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-[10px] sm:text-xs font-medium text-neutral-500">
+                          {col}
+                        </div>
+                      ))}
+                      <div className="w-6 sm:w-8"></div>
                     </div>
 
-                    {/* Seats */}
-                    {columns.map(col => {
-                      const seatId = getSeatId(row, col);
-                      const isOccupied = isSeatOccupied(seatId);
-                      const isSelected = isSeatSelected(seatId);
+                    {/* Rows - Bloque 2 */}
+                    {rows.map((row) => (
+                      <div key={`b2-${row}`} className="flex mb-1">
+                        {/* Row Label */}
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-neutral-700">
+                          {row}
+                        </div>
 
-                      return (
-                        <button
-                          key={seatId}
-                          onClick={() => handleSeatClick(seatId)}
-                          disabled={isOccupied}
-                          className={getSeatClasses(seatId)}
-                          title={`Asiento ${seatId} - ${isOccupied ? 'Ocupado' : isSelected ? 'Seleccionado' : 'Disponible'}`}
-                          aria-label={`Asiento ${seatId}`}
-                        >
-                          {/* Icon based on state */}
-                          {isOccupied ? '✕' : isSelected ? '✓' : ''}
-                        </button>
-                      );
-                    })}
+                        {/* Seats */}
+                        {columnsBlock2.map(col => {
+                          const seatId = getSeatId(2, row, col);
+                          const isOccupied = isSeatOccupied(seatId);
+                          const isSelected = isSeatSelected(seatId);
+
+                          return (
+                            <button
+                              key={seatId}
+                              onClick={() => handleSeatClick(seatId)}
+                              disabled={isOccupied}
+                              className={getSeatClasses(seatId)}
+                              title={`Bloque 2 - Asiento ${row}${col} - ${isOccupied ? 'Ocupado' : isSelected ? 'Seleccionado' : 'Disponible'}`}
+                              aria-label={`Bloque 2 Asiento ${row}${col}`}
+                            >
+                              {/* Icon based on state */}
+                              {isOccupied ? '✕' : isSelected ? '✓' : ''}
+                            </button>
+                          );
+                        })}
+
+                        {/* Row Label (derecha) */}
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-neutral-700">
+                          {row}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
@@ -280,7 +385,7 @@ const Asientos = () => {
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">Precio por asiento</span>
-                  <span className="font-medium text-neutral-900">${showtime.price.toFixed(2)}</span>
+                  <span className="font-medium text-neutral-900">{formatCurrency(showtime.price)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">Cantidad</span>
@@ -292,7 +397,7 @@ const Asientos = () => {
                 <span className="text-lg font-bold text-neutral-900">Total</span>
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-success" />
-                  <span className="text-2xl font-bold text-success">${totalPrice.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-success">{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
             </div>

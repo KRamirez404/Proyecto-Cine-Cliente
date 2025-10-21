@@ -18,7 +18,6 @@ const Horarios = () => {
   // State para filtros
   const [selectedDate, setSelectedDate] = useState('2025-10-17');
   const [selectedFormat, setSelectedFormat] = useState('all');
-  const [selectedSlotId, setSelectedSlotId] = useState(null);
 
   // Mock movie data - TODO: Replace with API call using movieId
   const movie = {
@@ -52,7 +51,7 @@ const Horarios = () => {
   }, []);
 
   // Mock showtimes data - TODO: Replace with API call
-  const allShowtimes = [
+  const allShowtimes = useMemo(() => [
     // Viernes 17 Oct
     { id: 1, date: '2025-10-17', time: '10:00', sala: 'Sala 1', format: '2D', price: 8.50, available: true },
     { id: 2, date: '2025-10-17', time: '13:00', sala: 'Sala 2', format: '3D', price: 12.00, available: true },
@@ -75,7 +74,7 @@ const Horarios = () => {
     { id: 15, date: '2025-10-19', time: '15:00', sala: 'Sala 2', format: '3D', price: 12.00, available: true },
     { id: 16, date: '2025-10-19', time: '18:00', sala: 'Sala 3', format: 'IMAX', price: 15.00, available: false },
     { id: 17, date: '2025-10-19', time: '21:00', sala: 'Sala 4', format: '4D', price: 18.00, available: true },
-  ];
+  ], []);
 
   // Filtrar showtimes por fecha y formato
   const filteredShowtimes = useMemo(() => {
@@ -86,7 +85,7 @@ const Horarios = () => {
     }
     
     return filtered;
-  }, [selectedDate, selectedFormat]);
+  }, [allShowtimes, selectedDate, selectedFormat]);
 
   // Agrupar por horario (mañana, tarde, noche)
   const groupedShowtimes = useMemo(() => {
@@ -120,20 +119,36 @@ const Horarios = () => {
     };
   }, [filteredShowtimes]);
 
-  // Handlers
+  // Handler
   const handleSlotClick = (data) => {
-    if (!data.available) return;
+    // Encontrar el showtime completo para verificar disponibilidad
+    const selectedShowtime = allShowtimes.find(s => s.id === data.id);
     
-    setSelectedSlotId(data.id);
-    console.log('Selected showtime:', data);
-  };
+    if (!selectedShowtime) {
+      console.error('Showtime not found:', data.id);
+      return;
+    }
 
-  const handleContinue = () => {
-    if (!selectedSlotId) return;
+    // Verificar disponibilidad
+    if (!selectedShowtime.available) {
+      return;
+    }
+
+    // Construir objeto de showtime con información de la película
+    const showtimeData = {
+      id: selectedShowtime.id,
+      movieTitle: movie.title,
+      date: selectedShowtime.date,
+      time: selectedShowtime.time,
+      sala: selectedShowtime.sala,
+      format: selectedShowtime.format,
+      price: selectedShowtime.price,
+    };
     
-    const selectedShowtime = allShowtimes.find(s => s.id === selectedSlotId);
-    console.log('Navigating to seat selection for:', selectedShowtime);
-    navigate(`/asientos/${selectedSlotId}`);
+    // Navegar directamente a la selección de asientos con los datos completos
+    navigate(`/asientos/${data.id}`, {
+      state: { showtime: showtimeData }
+    });
   };
 
   const formats = ['all', '2D', '3D', 'IMAX', '4D', 'VIP'];
@@ -216,10 +231,7 @@ const Horarios = () => {
             {availableDates.map((date) => (
               <button
                 key={date.value}
-                onClick={() => {
-                  setSelectedDate(date.value);
-                  setSelectedSlotId(null);
-                }}
+                onClick={() => setSelectedDate(date.value)}
                 className={`
                   p-3 rounded-lg border-2 transition-all font-medium text-sm
                   ${selectedDate === date.value
@@ -252,10 +264,7 @@ const Horarios = () => {
             {formats.map((format) => (
               <button
                 key={format}
-                onClick={() => {
-                  setSelectedFormat(format);
-                  setSelectedSlotId(null);
-                }}
+                onClick={() => setSelectedFormat(format)}
                 className={`
                   px-4 py-2 rounded-lg border-2 transition-all font-medium text-sm
                   ${selectedFormat === format
@@ -304,7 +313,6 @@ const Horarios = () => {
                   <TimeSlot
                     key={showtime.id}
                     {...showtime}
-                    selected={selectedSlotId === showtime.id}
                     onClick={handleSlotClick}
                     size="lg"
                   />
@@ -325,7 +333,6 @@ const Horarios = () => {
                   <TimeSlot
                     key={showtime.id}
                     {...showtime}
-                    selected={selectedSlotId === showtime.id}
                     onClick={handleSlotClick}
                     size="lg"
                   />
@@ -346,7 +353,6 @@ const Horarios = () => {
                   <TimeSlot
                     key={showtime.id}
                     {...showtime}
-                    selected={selectedSlotId === showtime.id}
                     onClick={handleSlotClick}
                     size="lg"
                   />
@@ -374,27 +380,6 @@ const Horarios = () => {
           >
             Restablecer Filtros
           </Button>
-        </div>
-      )}
-
-      {/* Continue Button (Sticky) */}
-      {selectedSlotId && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 shadow-lg p-4 z-30">
-          <div className="container mx-auto max-w-7xl flex items-center justify-between">
-            <div>
-              <p className="text-sm text-neutral-600">Función seleccionada</p>
-              <p className="font-semibold text-neutral-900">
-                {allShowtimes.find(s => s.id === selectedSlotId)?.time} - {allShowtimes.find(s => s.id === selectedSlotId)?.sala}
-              </p>
-            </div>
-            <Button 
-              variant="primary" 
-              size="lg"
-              onClick={handleContinue}
-            >
-              Seleccionar Asientos →
-            </Button>
-          </div>
         </div>
       )}
     </div>

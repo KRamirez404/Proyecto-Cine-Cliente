@@ -25,6 +25,14 @@ import MisCompras from '@pages/customer/MisCompras';
 
 // Import admin pages
 import AdminDashboard from '@pages/admin/AdminDashboard';
+import AdminCajeros from '@pages/admin/AdminCajeros';
+import AdminVIP from '@pages/admin/AdminVIP';
+import AdminLogs from '@pages/admin/AdminLogs';
+import AdminPeliculas from '@pages/admin/AdminPeliculas';
+
+// Import cajero pages
+import CajeroVentas from '@pages/cajero/CajeroVentas';
+import CajeroHistorial from '@pages/cajero/CajeroHistorial';
 // etc...
 
 /**
@@ -43,6 +51,54 @@ const mockUser = {
   name: 'Usuario Demo',
   email: 'demo@cineapp.com',
   role: 'customer', // Change to 'admin' or 'cajero' for testing
+};
+
+/**
+ * 🚪 LOGOUT HANDLER - LIMPIEZA COMPLETA DE SESIÓN
+ * 
+ * Limpia TODA la información de sesión del navegador:
+ * - localStorage: Datos persistentes (currentUser, etc)
+ * - sessionStorage: Datos de sesión temporal
+ * - Cookies: Si existen cookies de autenticación
+ * - Cache: Limpia cache del navegador (opcional)
+ * 
+ * Luego redirige al login sin posibilidad de volver atrás.
+ */
+const handleLogout = () => {
+  try {
+    // 1️⃣ Limpiar localStorage (datos persistentes)
+    localStorage.removeItem('currentUser');
+    // Opcional: Mantener historial de compras
+    // localStorage.removeItem('userPurchases'); 
+    
+    // 2️⃣ Limpiar sessionStorage completo (datos de sesión temporal)
+    sessionStorage.clear();
+    
+    // 3️⃣ Limpiar todas las cookies (si existen)
+    document.cookie.split(';').forEach(cookie => {
+      const name = cookie.split('=')[0].trim();
+      // Eliminar cookie para dominio actual y todos los paths
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+    });
+    
+    // 4️⃣ Limpiar cache del navegador (si está disponible)
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => caches.delete(name));
+      });
+    }
+    
+    console.log('✅ Sesión cerrada exitosamente - Cache completo limpiado');
+    
+    // 5️⃣ Redirigir usando replace (no permite volver atrás con back button)
+    window.location.replace('/login');
+    
+  } catch (error) {
+    console.error('❌ Error al cerrar sesión:', error);
+    // Fallback: intentar redirección de todas formas
+    window.location.href = '/login';
+  }
 };
 
 const createRouter = (user = null) => {
@@ -80,7 +136,7 @@ const createRouter = (user = null) => {
         <CustomerLayout 
           user={user} 
           notifications={3}
-          onLogout={() => console.log('Logout')}
+          onLogout={handleLogout}
           onSearch={(query) => console.log('Search:', query)}
         />
       ),
@@ -95,27 +151,15 @@ const createRouter = (user = null) => {
         },
         {
           path: 'asientos/:showtimeId',
-          element: (
-            <ProtectedRoute user={user} allowedRoles={['customer']}>
-              <Asientos />
-            </ProtectedRoute>
-          ),
+          element: <Asientos />,
         },
         {
           path: 'compra',
-          element: (
-            <ProtectedRoute user={user} allowedRoles={['customer']}>
-              <Compra />
-            </ProtectedRoute>
-          ),
+          element: <Compra />,
         },
         {
           path: 'confirmacion/:purchaseId',
-          element: (
-            <ProtectedRoute user={user} allowedRoles={['customer']}>
-              <Confirmacion />
-            </ProtectedRoute>
-          ),
+          element: <Confirmacion />,
         },
         {
           path: 'mis-compras',
@@ -138,7 +182,7 @@ const createRouter = (user = null) => {
           <AdminLayout 
             user={user}
             notifications={5}
-            onLogout={() => console.log('Logout')}
+            onLogout={handleLogout}
           />
         </ProtectedRoute>
       ),
@@ -153,19 +197,19 @@ const createRouter = (user = null) => {
         },
         {
           path: 'peliculas',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Gestión de Películas</h1><p className="text-neutral-600">TODO: CRUD de películas con MovieGrid</p></div>,
+          element: <AdminPeliculas />,
         },
         {
           path: 'cajeros',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Gestión de Cajeros</h1><p className="text-neutral-600">TODO: CRUD de cajeros con tabla</p></div>,
+          element: <AdminCajeros />,
         },
         {
           path: 'vip',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Clientes VIP</h1><p className="text-neutral-600">TODO: Listado y gestión de clientes VIP</p></div>,
+          element: <AdminVIP />,
         },
         {
           path: 'logs',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Log de Accesos</h1><p className="text-neutral-600">TODO: Tabla de logs con filtros</p></div>,
+          element: <AdminLogs />,
         },
       ],
     },
@@ -180,7 +224,7 @@ const createRouter = (user = null) => {
           <CajeroLayout 
             user={user}
             notifications={2}
-            onLogout={() => console.log('Logout')}
+            onLogout={handleLogout}
           />
         </ProtectedRoute>
       ),
@@ -191,11 +235,11 @@ const createRouter = (user = null) => {
         },
         {
           path: 'ventas',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Punto de Venta</h1><p className="text-neutral-600">TODO: POS con TimeSlot + seat selection</p></div>,
+          element: <CajeroVentas />,
         },
         {
           path: 'historial',
-          element: <div className=""><h1 className="text-3xl font-bold mb-4">Historial de Ventas</h1><p className="text-neutral-600">TODO: Tabla de transacciones</p></div>,
+          element: <CajeroHistorial />,
         },
       ],
     },

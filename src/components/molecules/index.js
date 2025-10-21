@@ -9,4 +9,5 @@ export { default as MovieCard } from './MovieCard';
 export { default as SearchBar } from './SearchBar';
 export { default as TimeSlot } from './TimeSlot';
 export { default as Modal } from './Modal';
+export { default as TermsModal } from './TermsModal';
 

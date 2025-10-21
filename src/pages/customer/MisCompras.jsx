@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Badge, Input, Card } from '@atoms';
 import { Modal } from '@molecules';
@@ -46,6 +46,42 @@ import {
 const MisCompras = () => {
   const navigate = useNavigate();
 
+  // Helper para formatear moneda colombiana
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Get logged user
+  const getLoggedUser = () => {
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const loggedUser = getLoggedUser();
+
+  // Get user purchases from localStorage
+  const getUserPurchases = () => {
+    try {
+      const purchases = JSON.parse(localStorage.getItem('userPurchases') || '[]');
+      // Filter by logged user if exists
+      if (loggedUser) {
+        return purchases.filter(p => p.userId === loggedUser.id);
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
   // View mode
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
 
@@ -64,8 +100,11 @@ const MisCompras = () => {
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Mock purchases data
-  const allPurchases = [
+  // Get user's real purchases from localStorage
+  const userRealPurchases = getUserPurchases();
+
+  // Mock purchases data (fallback for demo purposes) - wrapped in useMemo to avoid re-creation
+  const mockPurchases = useMemo(() => [
     {
       id: 'ABC123XYZ',
       showtime: {
@@ -171,13 +210,23 @@ const MisCompras = () => {
       fecha: '2025-01-18T16:20:00Z',
       estado: 'pending',
     },
-  ];
+  ], []); // mockPurchases useMemo - empty deps since data is static
+
+  // Combine real user purchases with mock purchases (real purchases first)
+  const allPurchases = useMemo(() => {
+    // If user has real purchases, show only those
+    if (userRealPurchases.length > 0) {
+      return userRealPurchases;
+    }
+    // Otherwise, show mock purchases for demo
+    return mockPurchases;
+  }, [userRealPurchases, mockPurchases]);
 
   // Get available movies for filter dropdown
   const availableMovies = useMemo(() => {
     const movies = new Set(allPurchases.map((p) => p.showtime.movieTitle));
     return Array.from(movies).sort();
-  }, []);
+  }, [allPurchases]);
 
   // Filter purchases
   const filteredPurchases = useMemo(() => {
@@ -210,7 +259,7 @@ const MisCompras = () => {
 
       return true;
     });
-  }, [searchQuery, selectedMovie, selectedStatus, dateFrom, dateTo]);
+  }, [allPurchases, searchQuery, selectedMovie, selectedStatus, dateFrom, dateTo]);
 
   // Pagination
   const totalPages = Math.ceil(filteredPurchases.length / itemsPerPage);
@@ -220,7 +269,7 @@ const MisCompras = () => {
   }, [filteredPurchases, currentPage]);
 
   // Reset to page 1 when filters change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedMovie, selectedStatus, dateFrom, dateTo]);
 
@@ -237,7 +286,7 @@ const MisCompras = () => {
       totalSpent,
       nextShowtime,
     };
-  }, []);
+  }, [allPurchases]);
 
   // Handlers
   const handleViewDetail = (purchase) => {
@@ -321,7 +370,7 @@ const MisCompras = () => {
               <div>
                 <p className="text-sm text-neutral-600">Total Gastado</p>
                 <p className="text-2xl font-bold text-success">
-                  ${stats.totalSpent.toFixed(2)}
+                  {formatCurrency(stats.totalSpent)}
                 </p>
               </div>
               <DollarSign className="w-10 h-10 text-success" />
@@ -536,7 +585,7 @@ const MisCompras = () => {
                     </span>
                   </div>
                   <p className="text-xl font-bold text-success">
-                    ${purchase.totalPrice.toFixed(2)}
+                    {formatCurrency(purchase.totalPrice)}
                   </p>
                 </div>
 
@@ -622,7 +671,7 @@ const MisCompras = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-bold text-success">
-                          ${purchase.totalPrice.toFixed(2)}
+                          {formatCurrency(purchase.totalPrice)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -755,7 +804,7 @@ const MisCompras = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Total Pagado</span>
                   <span className="text-2xl font-bold text-success">
-                    ${selectedPurchase.totalPrice.toFixed(2)}
+                    {formatCurrency(selectedPurchase.totalPrice)}
                   </span>
                 </div>
               </div>

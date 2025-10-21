@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Input, Button, Badge } from '@atoms';
-import { Modal } from '@molecules';
+import { Modal, TermsModal } from '@molecules';
 import { 
   ChevronLeft, 
   Film, 
@@ -22,10 +22,37 @@ import {
  * Formulario de checkout con resumen de compra.
  * Incluye validación, método de pago, términos y condiciones.
  * Modal de confirmación antes de procesar.
+ * 
+ * FUNCIONA:
+ * - Sin login: Compra como invitado (requiere datos manuales)
+ * - Con login: Compra asociada al usuario (datos pre-llenados si existen)
  */
 const Compra = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Get user from localStorage (if logged in)
+  // TODO: Replace with real auth store/context
+  const getLoggedUser = () => {
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const loggedUser = getLoggedUser();
+
+  // Helper para formatear moneda colombiana
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   // Get data from navigation state (from Asientos page)
   const { showtime, seats, totalPrice } = location.state || {};
@@ -37,11 +64,11 @@ const Compra = () => {
     }
   }, [showtime, seats, navigate]);
 
-  // Form state
+  // Form state - Pre-fill if user is logged in
   const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
+    nombre: loggedUser?.name || '',
+    email: loggedUser?.email || '',
+    telefono: loggedUser?.phone || '',
     metodoPago: 'tarjeta',
     aceptaTerminos: false,
   });
@@ -53,6 +80,8 @@ const Compra = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsType, setTermsType] = useState('terms'); // 'terms' or 'privacy'
 
   // Handle input change
   const handleInputChange = (name, value) => {
@@ -117,28 +146,51 @@ const Compra = () => {
     // Generate mock purchase ID
     const purchaseId = Math.random().toString(36).substr(2, 9).toUpperCase();
 
+    // Create purchase object
+    const purchase = {
+      id: purchaseId,
+      showtime,
+      seats,
+      totalPrice,
+      customerInfo: {
+        nombre: formData.nombre,
+        email: formData.email,
+        telefono: formData.telefono,
+      },
+      metodoPago: formData.metodoPago,
+      fecha: new Date().toISOString(),
+      estado: 'confirmed',
+      userId: loggedUser?.id || null, // Associate with user if logged in
+      isGuest: !loggedUser, // Mark as guest purchase if no user
+    };
+
+    // If user is logged in, save purchase to their history
+    if (loggedUser) {
+      try {
+        // Get existing purchases from localStorage
+        const existingPurchases = JSON.parse(localStorage.getItem('userPurchases') || '[]');
+        
+        // Add new purchase
+        existingPurchases.push(purchase);
+        
+        // Save back to localStorage
+        localStorage.setItem('userPurchases', JSON.stringify(existingPurchases));
+        
+        console.log('✅ Purchase saved to user history:', purchase);
+      } catch (error) {
+        console.error('Error saving purchase to user history:', error);
+      }
+    } else {
+      console.log('ℹ️ Guest purchase (not saved to user history)');
+    }
+
     setIsProcessing(false);
     setShowSuccessModal(true);
 
     // Navigate to confirmation after 2 seconds
     setTimeout(() => {
       navigate(`/confirmacion/${purchaseId}`, {
-        state: {
-          purchase: {
-            id: purchaseId,
-            showtime,
-            seats,
-            totalPrice,
-            customerInfo: {
-              nombre: formData.nombre,
-              email: formData.email,
-              telefono: formData.telefono,
-            },
-            metodoPago: formData.metodoPago,
-            fecha: new Date().toISOString(),
-            estado: 'confirmed',
-          },
-        },
+        state: { purchase },
       });
     }, 2000);
   };
@@ -166,6 +218,23 @@ const Compra = () => {
         <p className="text-neutral-600">
           Completa tus datos para confirmar tu reserva
         </p>
+        
+        {/* User Status Indicator */}
+        {loggedUser ? (
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-success-light border border-success rounded-lg">
+            <CheckCircle className="w-5 h-5 text-success" />
+            <span className="text-sm text-success font-medium">
+              Comprando como: {loggedUser.name}
+            </span>
+          </div>
+        ) : (
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-info-light border border-info rounded-lg">
+            <AlertCircle className="w-5 h-5 text-info" />
+            <span className="text-sm text-info font-medium">
+              Comprando como invitado
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -292,7 +361,28 @@ const Compra = () => {
                 />
                 <div className="flex-1">
                   <p className="text-sm text-neutral-700">
-                    Acepto los <a href="#" className="text-primary font-medium hover:underline">términos y condiciones</a> de compra y la <a href="#" className="text-primary font-medium hover:underline">política de privacidad</a>.
+                    Acepto los{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTermsType('terms');
+                        setShowTermsModal(true);
+                      }}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      términos y condiciones
+                    </button>{' '}
+                    de compra y la{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTermsType('privacy');
+                        setShowTermsModal(true);
+                      }}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      política de privacidad
+                    </button>.
                   </p>
                   {errors.aceptaTerminos && (
                     <p className="text-sm text-error mt-1 flex items-center gap-1">
@@ -374,7 +464,7 @@ const Compra = () => {
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
                 <span className="text-neutral-600">Precio por asiento</span>
-                <span className="font-medium text-neutral-900">${showtime.price.toFixed(2)}</span>
+                <span className="font-medium text-neutral-900">{formatCurrency(showtime.price)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-neutral-600">Cantidad de asientos</span>
@@ -383,7 +473,7 @@ const Compra = () => {
               {formData.metodoPago === 'efectivo' && (
                 <div className="flex justify-between text-sm text-warning">
                   <span>Cargo por pago en efectivo</span>
-                  <span className="font-medium">$0.00</span>
+                  <span className="font-medium">{formatCurrency(0)}</span>
                 </div>
               )}
             </div>
@@ -394,7 +484,7 @@ const Compra = () => {
                 <span className="text-lg font-bold text-neutral-900">Total</span>
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-6 h-6 text-success" />
-                  <span className="text-3xl font-bold text-success">${totalPrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-success">{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -449,7 +539,7 @@ const Compra = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-neutral-600">Total:</span>
-              <span className="font-bold text-primary text-lg">${totalPrice.toFixed(2)}</span>
+              <span className="font-bold text-primary text-lg">{formatCurrency(totalPrice)}</span>
             </div>
           </div>
         </div>
@@ -480,6 +570,13 @@ const Compra = () => {
           </div>
         )}
       </Modal>
+
+      {/* Terms and Privacy Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        type={termsType}
+      />
     </div>
   );
 };

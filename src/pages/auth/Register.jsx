@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '@atoms';
-import { Modal } from '@molecules';
+import { Modal, TermsModal } from '@molecules';
 import { Mail, Lock, User, Phone, AlertCircle, CheckCircle, Eye, EyeOff, Shield } from 'lucide-react';
 
 /**
@@ -50,6 +50,8 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsType, setTermsType] = useState('terms'); // 'terms' or 'privacy'
 
   // Password strength calculation
   const calculatePasswordStrength = (password) => {
@@ -409,13 +411,27 @@ const Register = () => {
                 />
                 <span className="text-sm text-neutral-700 group-hover:text-neutral-900">
                   Acepto los{' '}
-                  <Link to="/terms" className="text-primary hover:underline font-medium">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTermsType('terms');
+                      setShowTermsModal(true);
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
                     Términos y Condiciones
-                  </Link>{' '}
+                  </button>{' '}
                   y la{' '}
-                  <Link to="/privacy" className="text-primary hover:underline font-medium">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTermsType('privacy');
+                      setShowTermsModal(true);
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
                     Política de Privacidad
-                  </Link>
+                  </button>
                 </span>
               </label>
               {errors.acceptTerms && (
@@ -493,6 +509,13 @@ const Register = () => {
           </div>
         </Modal>
       )}
+
+      {/* Terms and Privacy Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        type={termsType}
+      />
     </div>
   );
 };

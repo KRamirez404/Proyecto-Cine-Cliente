@@ -7,12 +7,17 @@ import createRouter from './router';
 // TODO: Replace with real auth store (Zustand)
 // For now, check localStorage for user (from Login page)
 const storedUser = localStorage.getItem('user');
-const mockUser = storedUser ? JSON.parse(storedUser) : null;
-// Set to null to test auth pages, or uncomment below for testing with logged-in user:
+
+// Si no hay usuario en localStorage, usar uno por defecto para desarrollo
+const mockUser = storedUser 
+  ? JSON.parse(storedUser) 
+  : null; // null permite acceso a páginas públicas (login, register, cartelera)
+
+// Para testing de páginas protegidas SIN login, descomenta:
 // const mockUser = {
-//   name: 'Usuario Demo',
-//   email: 'demo@cineapp.com',
-//   role: 'customer', // Change to 'admin' or 'cajero' for testing different layouts
+//   name: 'Admin Demo',
+//   email: 'admin@cineapp.com',
+//   role: 'admin', // Cambia a 'customer', 'admin', o 'cajero'
 // };
 
 const router = createRouter(mockUser);
