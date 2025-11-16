@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Header } from '@organisms';
+import { Header, ChatbotButton } from '@organisms';
 import PropTypes from 'prop-types';
 
 /**
@@ -25,6 +25,9 @@ const CustomerLayout = ({ user, notifications = 0, onLogout, onSearch }) => {
       <main className="pt-20">
         <Outlet />
       </main>
+
+      {/* Chatbot Button - Burbuja flotante */}
+      <ChatbotButton />
 
       {/* Footer */}
       <footer className="border-t border-neutral-200 py-8 mt-16">
