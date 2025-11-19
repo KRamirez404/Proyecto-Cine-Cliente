@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '@atoms';
 import { Modal, TermsModal } from '@molecules';
 import { Mail, Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { authService } from '@services';
 
 /**
  * Login Page
@@ -49,27 +50,8 @@ const Login = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsType, setTermsType] = useState('terms'); // 'terms' or 'privacy'
 
-  // Mock users database
-  const mockUsers = [
-    {
-      email: 'customer@cine.com',
-      password: 'password123',
-      role: 'customer',
-      name: 'Cliente Demo',
-    },
-    {
-      email: 'admin@cine.com',
-      password: 'admin123',
-      role: 'admin',
-      name: 'Administrador Demo',
-    },
-    {
-      email: 'cajero@cine.com',
-      password: 'cajero123',
-      role: 'cajero',
-      name: 'Cajero Demo',
-    },
-  ];
+  // Nota: El backend usa 'usuario' y 'contrasena', pero el formulario usa 'email' y 'password'
+  // El servicio authService maneja la conversión automáticamente
 
   // Handlers
   const handleInputChange = (name, value) => {
@@ -120,25 +102,17 @@ const Login = () => {
     setIsLoading(true);
     setLoginError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      // Find user in mock database
-      const user = mockUsers.find(
-        (u) => u.email === formData.email && u.password === formData.password
-      );
+    try {
+      // Llamar al servicio real de autenticación
+      // El backend espera 'usuario' y 'contrasena', pero authService maneja la conversión
+      const response = await authService.login({
+        email: formData.email, // Se convertirá a 'usuario' en el servicio
+        password: formData.password, // Se convertirá a 'contrasena' en el servicio
+      });
 
-      if (user) {
-        // Success - store user data
-        const userData = {
-          id: Math.floor(Math.random() * 1000),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
-
-        // Store in localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', `mock-token-${userData.id}`);
+      if (response.success && response.data) {
+        // El token y usuario ya están guardados en localStorage por authService
+        const user = response.data.user || response.data.usuario;
         
         // Store remember me preference
         if (formData.rememberMe) {
@@ -151,23 +125,37 @@ const Login = () => {
         setIsLoading(false);
         setShowSuccessModal(true);
 
-        // Redirect after 1.5 seconds
+        // Redirect after 1.5 seconds según el rol
         setTimeout(() => {
           const redirectMap = {
+            CLIENTE: '/cartelera',
+            ADMIN: '/admin/dashboard',
+            CAJERO: '/cajero/ventas',
+            // También manejar roles en minúsculas por compatibilidad
             customer: '/cartelera',
             admin: '/admin/dashboard',
             cajero: '/cajero/ventas',
           };
           
+          const userRole = user.rol || user.role;
+          const redirectPath = redirectMap[userRole] || '/cartelera';
+          
           // Reload page to update user context
-          window.location.href = redirectMap[user.role] || '/';
+          window.location.href = redirectPath;
         }, 1500);
       } else {
-        // Error - invalid credentials
         setIsLoading(false);
-        setLoginError('Email o contraseña incorrectos');
+        setLoginError('Error al iniciar sesión. Por favor, intenta de nuevo.');
       }
-    }, 1500);
+    } catch (error) {
+      setIsLoading(false);
+      // Mostrar mensaje de error del backend o mensaje genérico
+      setLoginError(
+        error.message || 
+        error.data?.message || 
+        'Usuario o contraseña incorrectos. Verifica tus credenciales.'
+      );
+    }
   };
 
   return (

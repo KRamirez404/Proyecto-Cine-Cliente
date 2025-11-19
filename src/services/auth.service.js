@@ -22,9 +22,20 @@ export const authService = {
       
       if (response.success && response.data) {
         // Guardar token y datos del usuario en localStorage
-        // El backend devuelve 'user' no 'usuario'
+        // El backend devuelve 'user' o 'usuario' con campo 'rol' (ej: 'ADMIN')
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user || response.data.usuario));
+
+        const rawUser = response.data.user || response.data.usuario;
+
+        // Normalizar rol para el frontend (ProtectedRoute usa 'role' en minúsculas)
+        const normalizedRole = (rawUser?.rol || rawUser?.role || '').toLowerCase();
+
+        const userToStore = {
+          ...rawUser,
+          role: normalizedRole, // 'admin', 'customer', 'cajero'
+        };
+
+        localStorage.setItem('user', JSON.stringify(userToStore));
       }
       
       return response;
@@ -44,9 +55,18 @@ export const authService = {
       
       if (response.success && response.data) {
         // Guardar token y datos del usuario en localStorage
-        // El backend devuelve 'user' no 'usuario'
+        // El backend devuelve 'user' o 'usuario' con campo 'rol'
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user || response.data.usuario));
+
+        const rawUser = response.data.user || response.data.usuario;
+        const normalizedRole = (rawUser?.rol || rawUser?.role || '').toLowerCase();
+
+        const userToStore = {
+          ...rawUser,
+          role: normalizedRole,
+        };
+
+        localStorage.setItem('user', JSON.stringify(userToStore));
       }
       
       return response;
