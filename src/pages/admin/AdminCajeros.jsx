@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Card, Button, Input, Badge } from '@/components/atoms';
 import { Modal } from '@/components/molecules';
+import { cajerosService } from '@/services/cajeros.service';
 import { 
   Plus, 
   Edit, 
@@ -281,26 +282,49 @@ const AdminCajeros = () => {
   };
 
   // CRUD Operations
-  const handleAddCajero = () => {
+  const handleAddCajero = async () => {
     if (!validateForm()) return;
-    
-    const newCajero = {
-      id: Date.now(),
-      nombre: formData.nombre,
-      email: formData.email,
-      telefono: formData.telefono,
-      horario: formData.horario,
-      estado: 'activo',
-      ultimoAcceso: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    
-    const updatedCajeros = [...cajeros, newCajero];
-    setCajeros(updatedCajeros);
-    localStorage.setItem('adminCajeros', JSON.stringify(updatedCajeros));
-    
-    setIsAddModalOpen(false);
-    resetForm();
+
+    try {
+      // Enviar al backend (sin teléfono en el payload)
+      const response = await cajerosService.createCajero({
+        nombre: formData.nombre,
+        usuario: formData.email.split('@')[0],
+        password: formData.password,
+        horario: formData.horario,
+      });
+
+      // Tomamos el cajero creado desde la respuesta si viene, si no usamos datos locales
+      const created = response?.data?.cajero || response?.data || {
+        id: Date.now(),
+        nombre: formData.nombre,
+        email: formData.email,
+        horario: formData.horario,
+      };
+
+      const newCajero = {
+        id: created.id || Date.now(),
+        nombre: created.nombre,
+        email: created.email,
+        telefono: formData.telefono,
+        horario: created.horario || formData.horario,
+        estado: created.estado || 'activo',
+        ultimoAcceso:
+          created.ultimoAcceso ||
+          new Date().toISOString().replace('T', ' ').substring(0, 19),
+        createdAt: created.createdAt || new Date().toISOString().split('T')[0],
+      };
+
+      const updatedCajeros = [...cajeros, newCajero];
+      setCajeros(updatedCajeros);
+      localStorage.setItem('adminCajeros', JSON.stringify(updatedCajeros));
+
+      setIsAddModalOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error al registrar cajero:', error);
+      // Aquí podrías mostrar un toast/notificación si tienes sistema de alerts
+    }
   };
 
   const handleEditCajero = () => {

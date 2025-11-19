@@ -30,8 +30,10 @@ export const authService = {
         // Normalizar rol para el frontend (ProtectedRoute usa 'role' en minúsculas)
         const normalizedRole = (rawUser?.rol || rawUser?.role || '').toLowerCase();
 
+        // Asegurar que siempre exista un campo `name` usando lo que venga del backend
         const userToStore = {
           ...rawUser,
+          name: rawUser?.nombre || rawUser?.name || rawUser?.usuario || '',
           role: normalizedRole, // 'admin', 'customer', 'cajero'
         };
 
@@ -63,6 +65,7 @@ export const authService = {
 
         const userToStore = {
           ...rawUser,
+          name: rawUser?.nombre || rawUser?.name || rawUser?.usuario || '',
           role: normalizedRole,
         };
 
