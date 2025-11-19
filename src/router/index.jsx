@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { authService } from '@/services/auth.service';
 import { 
   PublicLayout, 
   CustomerLayout, 
@@ -66,6 +67,9 @@ const mockUser = {
  */
 const handleLogout = () => {
   try {
+    // 0️⃣ Usar el servicio de auth para limpiar token/usuario
+    authService.logout?.();
+
     // 1️⃣ Limpiar localStorage (datos persistentes)
     localStorage.removeItem('currentUser');
     // Opcional: Mantener historial de compras
@@ -92,12 +96,13 @@ const handleLogout = () => {
     console.log('✅ Sesión cerrada exitosamente - Cache completo limpiado');
     
     // 5️⃣ Redirigir usando replace (no permite volver atrás con back button)
-    window.location.replace('/login');
+    // En lugar de ir al login, enviamos a la cartelera pública
+    window.location.replace('/cartelera');
     
   } catch (error) {
     console.error('❌ Error al cerrar sesión:', error);
     // Fallback: intentar redirección de todas formas
-    window.location.href = '/login';
+    window.location.href = '/cartelera';
   }
 };
 

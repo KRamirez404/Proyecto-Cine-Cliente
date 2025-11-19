@@ -21,206 +21,11 @@ import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import Badge from '../../components/atoms/Badge';
 import Modal from '../../components/molecules/Modal';
-
-// Mock Movies Data
-const initialMovies = [
-  {
-    id: 1,
-    titulo: 'Oppenheimer',
-    sinopsis: 'La historia del científico J. Robert Oppenheimer y su papel en el desarrollo de la bomba atómica.',
-    duracion: 180,
-    genero: ['Drama', 'Historia', 'Thriller'],
-    director: 'Christopher Nolan',
-    reparto: 'Cillian Murphy, Emily Blunt, Matt Damon',
-    poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-    trailer: 'https://www.youtube.com/embed/uYPbbksJxIg',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-07-21',
-    estado: 'cartelera',
-    precio: 85,
-    sala: 'Sala VIP 1'
-  },
-  {
-    id: 2,
-    titulo: 'Barbie',
-    sinopsis: 'Barbie y Ken están teniendo el tiempo de sus vidas en el colorido y aparentemente perfecto mundo de Barbie Land.',
-    duracion: 114,
-    genero: ['Comedia', 'Aventura', 'Fantasía'],
-    director: 'Greta Gerwig',
-    reparto: 'Margot Robbie, Ryan Gosling, Will Ferrell',
-    poster: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg',
-    trailer: 'https://www.youtube.com/embed/pBk4NYhWNMM',
-    clasificacion: 'B',
-    fechaEstreno: '2023-07-21',
-    estado: 'cartelera',
-    precio: 70,
-    sala: 'Sala 2'
-  },
-  {
-    id: 3,
-    titulo: 'Dune: Part Two',
-    sinopsis: 'Paul Atreides se une a Chani y los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia.',
-    duracion: 166,
-    genero: ['Ciencia Ficción', 'Aventura'],
-    director: 'Denis Villeneuve',
-    reparto: 'Timothée Chalamet, Zendaya, Rebecca Ferguson',
-    poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
-    trailer: 'https://www.youtube.com/embed/Way9Dexny3w',
-    clasificacion: 'B15',
-    fechaEstreno: '2024-03-01',
-    estado: 'cartelera',
-    precio: 95,
-    sala: 'Sala IMAX'
-  },
-  {
-    id: 4,
-    titulo: 'Spider-Man: Across the Spider-Verse',
-    sinopsis: 'Miles Morales regresa para la próxima aventura del Spider-Verse.',
-    duracion: 140,
-    genero: ['Animación', 'Acción', 'Aventura'],
-    director: 'Joaquim Dos Santos',
-    reparto: 'Shameik Moore, Hailee Steinfeld, Oscar Isaac',
-    poster: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
-    trailer: 'https://www.youtube.com/embed/cqGjhVJWtEg',
-    clasificacion: 'B',
-    fechaEstreno: '2023-06-02',
-    estado: 'cartelera',
-    precio: 75,
-    sala: 'Sala 3'
-  },
-  {
-    id: 5,
-    titulo: 'Guardians of the Galaxy Vol. 3',
-    sinopsis: 'Los Guardianes de la Galaxia emprenden una misión peligrosa para salvar a uno de los suyos.',
-    duracion: 150,
-    genero: ['Acción', 'Aventura', 'Comedia'],
-    director: 'James Gunn',
-    reparto: 'Chris Pratt, Zoe Saldana, Dave Bautista',
-    poster: 'https://image.tmdb.org/t/p/w500/r2J02Z2OpNTctfOSN1Ydgii51I3.jpg',
-    trailer: 'https://www.youtube.com/embed/u3V5KDHRQvk',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-05-05',
-    estado: 'archivada',
-    precio: 70,
-    sala: 'Sala 4'
-  },
-  {
-    id: 6,
-    titulo: 'The Flash',
-    sinopsis: 'Barry Allen viaja en el tiempo para prevenir el asesinato de su madre.',
-    duracion: 144,
-    genero: ['Acción', 'Aventura', 'Ciencia Ficción'],
-    director: 'Andy Muschietti',
-    reparto: 'Ezra Miller, Michael Keaton, Ben Affleck',
-    poster: 'https://image.tmdb.org/t/p/w500/rktDFPbfHfUbArZ6OOOKsXcv0Bm.jpg',
-    trailer: 'https://www.youtube.com/embed/hebWYacbdvc',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-06-16',
-    estado: 'archivada',
-    precio: 65,
-    sala: 'Sala 5'
-  },
-  {
-    id: 7,
-    titulo: 'Indiana Jones and the Dial of Destiny',
-    sinopsis: 'El arqueólogo Indiana Jones se enfrenta a su última aventura.',
-    duracion: 154,
-    genero: ['Acción', 'Aventura'],
-    director: 'James Mangold',
-    reparto: 'Harrison Ford, Phoebe Waller-Bridge, Mads Mikkelsen',
-    poster: 'https://image.tmdb.org/t/p/w500/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg',
-    trailer: 'https://www.youtube.com/embed/ZMysDI7De88',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-06-30',
-    estado: 'archivada',
-    precio: 70,
-    sala: 'Sala 6'
-  },
-  {
-    id: 8,
-    titulo: 'Mission: Impossible - Dead Reckoning',
-    sinopsis: 'Ethan Hunt y su equipo se embarcan en su misión más peligrosa.',
-    duracion: 163,
-    genero: ['Acción', 'Thriller'],
-    director: 'Christopher McQuarrie',
-    reparto: 'Tom Cruise, Hayley Atwell, Ving Rhames',
-    poster: 'https://image.tmdb.org/t/p/w500/NNxYkU70HPurnNCSiCjYAmacwm.jpg',
-    trailer: 'https://www.youtube.com/embed/avz06PDqDbM',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-07-12',
-    estado: 'archivada',
-    precio: 75,
-    sala: 'Sala 7'
-  },
-  {
-    id: 9,
-    titulo: 'Avatar: The Way of Water',
-    sinopsis: 'Jake Sully vive con su nueva familia formada en el planeta de Pandora.',
-    duracion: 192,
-    genero: ['Ciencia Ficción', 'Aventura', 'Acción'],
-    director: 'James Cameron',
-    reparto: 'Sam Worthington, Zoe Saldana, Sigourney Weaver',
-    poster: 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg',
-    trailer: 'https://www.youtube.com/embed/d9MyW72ELq0',
-    clasificacion: 'B',
-    fechaEstreno: '2022-12-16',
-    estado: 'archivada',
-    precio: 95,
-    sala: 'Sala IMAX'
-  },
-  {
-    id: 10,
-    titulo: 'The Marvels',
-    sinopsis: 'Carol Danvers, Kamala Khan y Monica Rambeau unen fuerzas.',
-    duracion: 105,
-    genero: ['Acción', 'Aventura', 'Ciencia Ficción'],
-    director: 'Nia DaCosta',
-    reparto: 'Brie Larson, Teyonah Parris, Iman Vellani',
-    poster: 'https://image.tmdb.org/t/p/w500/9GBhzXMFjgcZ3FdkKvh8Yj8xJ8d.jpg',
-    trailer: 'https://www.youtube.com/embed/wS_qbDztgVY',
-    clasificacion: 'B',
-    fechaEstreno: '2023-11-10',
-    estado: 'proximamente',
-    precio: 80,
-    sala: 'Sala 3'
-  },
-  {
-    id: 11,
-    titulo: 'Wonka',
-    sinopsis: 'La historia de cómo Willy Wonka se convirtió en el famoso chocolatero.',
-    duracion: 116,
-    genero: ['Fantasía', 'Comedia', 'Musical'],
-    director: 'Paul King',
-    reparto: 'Timothée Chalamet, Olivia Colman, Hugh Grant',
-    poster: 'https://image.tmdb.org/t/p/w500/qhb1qOilapbapxWQn9jtRCMwXJF.jpg',
-    trailer: 'https://www.youtube.com/embed/wYol5URChVY',
-    clasificacion: 'A',
-    fechaEstreno: '2023-12-15',
-    estado: 'proximamente',
-    precio: 70,
-    sala: 'Sala 2'
-  },
-  {
-    id: 12,
-    titulo: 'Aquaman and the Lost Kingdom',
-    sinopsis: 'Black Manta busca vengarse de Aquaman por la muerte de su padre.',
-    duracion: 124,
-    genero: ['Acción', 'Aventura', 'Fantasía'],
-    director: 'James Wan',
-    reparto: 'Jason Momoa, Patrick Wilson, Amber Heard',
-    poster: 'https://image.tmdb.org/t/p/w500/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg',
-    trailer: 'https://www.youtube.com/embed/UGc5Tzz19UY',
-    clasificacion: 'B15',
-    fechaEstreno: '2023-12-22',
-    estado: 'proximamente',
-    precio: 75,
-    sala: 'Sala 4'
-  }
-];
+import { peliculasService } from '@services';
 
 const GENEROS = ['Acción', 'Aventura', 'Comedia', 'Drama', 'Terror', 'Ciencia Ficción', 'Fantasía', 'Romance', 'Thriller', 'Animación', 'Musical', 'Historia'];
 const CLASIFICACIONES = ['A', 'AA', 'B', 'B15', 'C', 'D'];
-const ESTADOS = ['cartelera', 'proximamente', 'archivada'];
+const ESTADOS = ['EN_CARTELERA', 'PROXIMAMENTE', 'ARCHIVADA'];
 
 const AdminPeliculas = () => {
   // State Management
@@ -235,6 +40,9 @@ const AdminPeliculas = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     titulo: '',
     sinopsis: '',
@@ -246,29 +54,54 @@ const AdminPeliculas = () => {
     trailer: '',
     clasificacion: 'B',
     fechaEstreno: '',
-    estado: 'cartelera',
+    estado: 'EN_CARTELERA',
     precio: '',
     sala: ''
   });
   const itemsPerPage = 10;
 
-  // Load movies from localStorage
+  // Load movies from API
   useEffect(() => {
-    const savedMovies = JSON.parse(localStorage.getItem('adminPeliculas') || '[]');
-    if (savedMovies.length > 0) {
-      setMovies(savedMovies);
-    } else {
-      setMovies(initialMovies);
-      localStorage.setItem('adminPeliculas', JSON.stringify(initialMovies));
-    }
-  }, []);
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const response = await peliculasService.getAll();
+        if (response?.success && Array.isArray(response.data)) {
+          // Adaptar claves del backend al frontend si es necesario
+          const mapped = response.data.map((movie) => ({
+            id: movie.id_pelicula || movie.id,
+            titulo: movie.titulo,
+            sinopsis: movie.sinopsis || movie.descripcion || '',
+            duracion: movie.duracion || 0,
+            genero: Array.isArray(movie.genero)
+              ? movie.genero
+              : movie.genero
+              ? String(movie.genero).split(',').map((g) => g.trim())
+              : [],
+            director: movie.director || '',
+            reparto: movie.reparto || '',
+            poster: movie.poster_url || movie.poster || null,
+            trailer: movie.trailer_url || movie.trailer || '',
+            clasificacion: movie.clasificacion || movie.calificacion || 'B',
+            fechaEstreno: movie.fecha_estreno || movie.fechaEstreno || '',
+            estado: (movie.estado || '').toLowerCase() || 'cartelera',
+            precio: movie.precio || movie.precio_base || 0,
+            sala: movie.sala || ''
+          }));
+          setMovies(mapped);
+        } else {
+          setMovies([]);
+        }
+      } catch (err) {
+        setError('No se pudieron cargar las películas desde el servidor.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Save to localStorage on change
-  useEffect(() => {
-    if (movies.length > 0) {
-      localStorage.setItem('adminPeliculas', JSON.stringify(movies));
-    }
-  }, [movies]);
+    fetchMovies();
+  }, []);
 
   // Stats calculations
   const stats = useMemo(() => {
@@ -356,35 +189,136 @@ const AdminPeliculas = () => {
   };
 
   // Handle add movie
-  const handleAdd = () => {
-    const newMovie = {
-      id: Date.now(),
-      ...formData,
-      duracion: parseInt(formData.duracion),
-      precio: parseFloat(formData.precio)
-    };
-    setMovies([...movies, newMovie]);
-    setShowAddModal(false);
-    resetForm();
+  const handleAdd = async () => {
+    try {
+      setSaving(true);
+      setError('');
+      const payload = {
+        titulo: formData.titulo,
+        sinopsis: formData.sinopsis,
+        duracion: parseInt(formData.duracion, 10),
+        genero: Array.isArray(formData.genero)
+          ? formData.genero.join(',')
+          : formData.genero || '',
+        director: formData.director,
+        reparto: formData.reparto,
+        poster_url: formData.poster,
+        trailer_url: formData.trailer,
+        clasificacion: formData.clasificacion,
+        fecha_estreno: formData.fechaEstreno || null,
+        estado: formData.estado?.toUpperCase(),
+        precio_base: parseFloat(formData.precio),
+        sala: formData.sala
+      };
+
+      const response = await peliculasService.create(payload);
+      if (response?.success && response.data) {
+        const movie = response.data;
+        const mapped = {
+          id: movie.id_pelicula || movie.id,
+          titulo: movie.titulo,
+          sinopsis: movie.sinopsis || movie.descripcion || '',
+          duracion: movie.duracion || 0,
+          genero: Array.isArray(movie.genero)
+            ? movie.genero
+            : movie.genero
+            ? String(movie.genero).split(',').map((g) => g.trim())
+            : [],
+          director: movie.director || '',
+          reparto: movie.reparto || '',
+          poster: movie.poster_url || movie.poster || null,
+          trailer: movie.trailer_url || movie.trailer || '',
+          clasificacion: movie.clasificacion || movie.calificacion || 'B',
+          fechaEstreno: movie.fecha_estreno || movie.fechaEstreno || '',
+          estado: (movie.estado || '').toLowerCase() || 'cartelera',
+          precio: movie.precio || movie.precio_base || 0,
+          sala: movie.sala || ''
+        };
+        setMovies((prev) => [...prev, mapped]);
+        setShowAddModal(false);
+        resetForm();
+      }
+    } catch (err) {
+      setError('No se pudo crear la película. Revisa los datos.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Handle edit movie
-  const handleEdit = () => {
-    setMovies(movies.map(m => 
-      m.id === selectedMovie.id 
-        ? { ...selectedMovie, ...formData, duracion: parseInt(formData.duracion), precio: parseFloat(formData.precio) }
-        : m
-    ));
-    setShowEditModal(false);
-    setSelectedMovie(null);
-    resetForm();
+  const handleEdit = async () => {
+    if (!selectedMovie) return;
+    try {
+      setSaving(true);
+      setError('');
+      const payload = {
+        titulo: formData.titulo,
+        sinopsis: formData.sinopsis,
+        duracion: parseInt(formData.duracion, 10),
+        genero: Array.isArray(formData.genero)
+          ? formData.genero.join(',')
+          : formData.genero || '',
+        director: formData.director,
+        reparto: formData.reparto,
+        poster_url: formData.poster,
+        trailer_url: formData.trailer,
+        clasificacion: formData.clasificacion,
+        fecha_estreno: formData.fechaEstreno || null,
+        estado: formData.estado?.toUpperCase(),
+        precio_base: parseFloat(formData.precio),
+        sala: formData.sala
+      };
+
+      const response = await peliculasService.update(selectedMovie.id, payload);
+      if (response?.success && response.data) {
+        const movie = response.data;
+        const mapped = {
+          id: movie.id_pelicula || movie.id,
+          titulo: movie.titulo,
+          sinopsis: movie.sinopsis || movie.descripcion || '',
+          duracion: movie.duracion || 0,
+          genero: Array.isArray(movie.genero)
+            ? movie.genero
+            : movie.genero
+            ? String(movie.genero).split(',').map((g) => g.trim())
+            : [],
+          director: movie.director || '',
+          reparto: movie.reparto || '',
+          poster: movie.poster_url || movie.poster || null,
+          trailer: movie.trailer_url || movie.trailer || '',
+          clasificacion: movie.clasificacion || movie.calificacion || 'B',
+          fechaEstreno: movie.fecha_estreno || movie.fechaEstreno || '',
+          estado: (movie.estado || '').toLowerCase() || 'cartelera',
+          precio: movie.precio || movie.precio_base || 0,
+          sala: movie.sala || ''
+        };
+        setMovies((prev) => prev.map((m) => (m.id === mapped.id ? mapped : m)));
+        setShowEditModal(false);
+        setSelectedMovie(null);
+        resetForm();
+      }
+    } catch (err) {
+      setError('No se pudo actualizar la película.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Handle delete movie
-  const handleDelete = () => {
-    setMovies(movies.filter(m => m.id !== selectedMovie.id));
-    setShowDeleteModal(false);
-    setSelectedMovie(null);
+  const handleDelete = async () => {
+    if (!selectedMovie) return;
+    try {
+      setSaving(true);
+      setError('');
+      await peliculasService.delete(selectedMovie.id);
+      setMovies((prev) => prev.filter((m) => m.id !== selectedMovie.id));
+      setShowDeleteModal(false);
+      setSelectedMovie(null);
+    } catch (err) {
+      setError('No se pudo eliminar la película.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Reset form
